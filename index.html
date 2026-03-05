@@ -1,0 +1,679 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rayhan Etwaree | Computer Engineering</title>
+    
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2240%22 fill=%22%2300ff41%22 stroke=%22%23ffffff%22 stroke-width=%225%22/></svg>">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+    <style>
+      /* --- THEME VARIABLES --- */
+      :root {
+        --pcb-bg: #0b1a14;
+        --pcb-trace: #163025;
+        --white: #e0ece4;
+        --led-on: #00ff41;
+        --chip-body: #050f0c;
+        --font-screen: 'Share Tech Mono', monospace;
+        --font-body: 'Inter', sans-serif;
+      }
+
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      
+      body {
+        background-color: var(--pcb-bg);
+        color: var(--white);
+        font-family: var(--font-body);
+        line-height: 1.6;
+        overflow-x: hidden;
+        cursor: none;
+      }
+
+      /* --- LAYERS --- */
+      #pcb-layer {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        z-index: -2;
+        opacity: 0.4;
+      }
+
+      #cursor-layer {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        z-index: 9999;
+        pointer-events: none;
+      }
+
+      body::after {
+        content: "";
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: radial-gradient(circle at center, transparent 0%, #000000 100%);
+        pointer-events: none;
+        z-index: -1;
+        opacity: 0.6;
+      }
+
+      /* --- UI ELEMENTS --- */
+      .container {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 0 24px;
+        position: relative;
+        z-index: 2;
+      }
+
+      h1, h2, h3 { text-transform: uppercase; }
+
+      header {
+        position: fixed;
+        top: 0; left: 0; right: 0;
+        height: 70px;
+        background: rgba(11, 26, 20, 0.9);
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        backdrop-filter: blur(8px);
+      }
+      
+      header::after {
+        content: "";
+        position: absolute;
+        bottom: -1px; left: 0; width: 100%; height: 1px;
+        background: repeating-linear-gradient(90deg, var(--white) 0, var(--white) 4px, transparent 4px, transparent 8px);
+        opacity: 0.3;
+      }
+
+      .logo {
+        font-family: var(--font-screen);
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: var(--white);
+        letter-spacing: 1px;
+      }
+
+      .nav-links { display: flex; gap: 30px; margin-left: auto; }
+
+      .nav-links a {
+        color: #8fa39a;
+        text-decoration: none;
+        font-family: var(--font-screen);
+        font-size: 1.1rem;
+        transition: color 0.2s;
+        cursor: none;
+      }
+
+      .nav-links a:hover { color: var(--led-on); text-shadow: 0 0 5px var(--led-on); }
+      
+      .btn-resume {
+        border: 1px solid var(--white);
+        padding: 5px 15px;
+        border-radius: 4px;
+        color: var(--white) !important;
+      }
+      .btn-resume:hover {
+        background: var(--white);
+        color: var(--pcb-bg) !important;
+        text-shadow: none !important;
+      }
+
+      .hero {
+        min-height: 85vh;
+        display: flex;
+        align-items: center;
+        padding-top: 80px;
+      }
+
+      .hero-content {
+        border-left: 2px solid var(--white);
+        padding-left: 30px;
+        position: relative;
+      }
+      
+      .hero-content::before {
+        content: ""; position: absolute; left: -6px; top: 0;
+        width: 10px; height: 10px; background: var(--white);
+      }
+
+      .hero-label {
+        color: var(--led-on);
+        font-family: var(--font-screen);
+        letter-spacing: 0.1em;
+        margin-bottom: 10px;
+        display: block;
+      }
+
+      .hero h1 {
+        font-family: var(--font-body);
+        font-weight: 800;
+        font-size: 5rem;
+        line-height: 1;
+        margin-bottom: 20px;
+        white-space: nowrap;
+        color: var(--white);
+      }
+
+      .hero p {
+        font-size: 1.2rem;
+        max-width: 600px;
+        color: #b0c4ba;
+        margin-bottom: 30px;
+      }
+
+      .specs-section {
+        padding: 40px 0;
+        border-top: 1px solid rgba(255,255,255,0.1);
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        background: rgba(0,0,0,0.2);
+      }
+      
+      .specs-grid { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 20px; }
+      
+      .spec-item span {
+        color: var(--led-on); font-family: var(--font-screen); font-size: 0.85rem; display: block; margin-bottom: 5px;
+      }
+      .spec-item h3 { margin: 0; font-size: 1.2rem; }
+      .spec-item p { color: #888; margin: 0; font-size: 0.95rem; }
+
+      section { padding: 100px 0; }
+      
+      .section-header {
+        border-bottom: 1px solid var(--white);
+        margin-bottom: 50px;
+        display: flex;
+        align-items: baseline;
+        gap: 15px;
+      }
+      
+      .section-header h2 { font-family: var(--font-screen); font-size: 2.5rem; color: var(--white); }
+      .section-header span { font-family: var(--font-screen); color: var(--led-on); }
+
+      .project-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+        gap: 40px;
+      }
+
+      .chip-card {
+        background-color: var(--chip-body);
+        border: 1px solid #333;
+        border-radius: 4px;
+        padding: 30px;
+        position: relative;
+        transition: transform 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        cursor: none;
+      }
+
+      .chip-card:hover {
+        transform: translateY(-5px);
+        border-color: var(--white);
+        box-shadow: 0 0 20px rgba(0, 255, 65, 0.1);
+      }
+
+      .chip-card::before, .chip-card::after {
+        content: ""; position: absolute; top: 15px; bottom: 15px; width: 4px;
+        background-image: linear-gradient(to bottom, #666 50%, transparent 50%);
+        background-size: 4px 8px;
+      }
+      .chip-card::before { left: -5px; }
+      .chip-card::after { right: -5px; }
+
+      .chip-header {
+        display: flex; justify-content: space-between; align-items: start;
+        margin-bottom: 15px; border-bottom: 1px solid #222; padding-bottom: 15px;
+      }
+
+      .project-title { font-size: 1.5rem; color: var(--white); font-family: var(--font-screen); }
+      .project-type { font-family: var(--font-screen); font-size: 0.8rem; color: var(--led-on); }
+      .project-desc { font-size: 0.95rem; color: #ccc; margin-bottom: 20px; flex-grow: 1; }
+
+      .tech-stack { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+      .tech-badge {
+        font-family: var(--font-screen); font-size: 0.75rem; background: #1a221e;
+        color: var(--white); padding: 4px 8px; border: 1px solid #444;
+      }
+
+      .chip-footer a {
+        display: inline-flex; align-items: center; gap: 8px; color: var(--white);
+        text-decoration: none; font-weight: 600; font-size: 0.9rem; cursor: none;
+      }
+      .chip-footer a:hover { color: var(--led-on); }
+
+      .skills-container {
+        display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+        background: rgba(13, 26, 22, 0.5); padding: 40px; border: 1px solid #444;
+      }
+
+      .skill-col h3 {
+        color: var(--led-on); margin-bottom: 20px; font-size: 1.1rem;
+        font-family: var(--font-screen); border-bottom: 1px dashed #555; padding-bottom: 10px;
+      }
+
+      .skill-list li {
+        list-style: none; margin-bottom: 10px; display: flex; align-items: center;
+        font-family: var(--font-screen); color: #eee;
+      }
+      .skill-list li::before {
+        content: "[+]"; color: var(--led-on); margin-right: 10px; font-size: 0.8rem;
+      }
+
+      .timeline-item {
+        border-left: 1px solid #555; padding-left: 30px; margin-left: 10px;
+        position: relative; margin-bottom: 40px;
+      }
+      .timeline-dot {
+        position: absolute; left: -5px; top: 0; width: 9px; height: 9px;
+        background: var(--led-on); border-radius: 50%; box-shadow: 0 0 8px var(--led-on);
+      }
+      .role-date { margin-bottom:5px; color:var(--led-on); font-family:var(--font-screen); }
+      .role-title { margin-bottom:5px; font-size:1.4rem; color: var(--white); }
+      .role-meta { color:#8fa39a; margin-bottom: 10px; display:block; }
+
+      .contact-box {
+        background: var(--chip-body); border: 1px solid #444; padding: 40px; text-align: center;
+      }
+      .social-icons { margin-top:30px; display:flex; justify-content:center; gap:30px; }
+      .social-icon { color: var(--white); transition: transform 0.2s, color 0.2s; cursor: none; }
+      .social-icon:hover { color: var(--led-on); transform: scale(1.1); }
+
+      footer {
+        text-align: center; padding: 50px 0; border-top: 1px solid #333;
+        color: #667; font-family: var(--font-screen); background: #050f0c;
+      }
+
+      @media (max-width: 768px) {
+        .hero h1 { font-size: 3rem; white-space: normal; }
+        .project-grid { grid-template-columns: 1fr; }
+        .skills-container { grid-template-columns: 1fr; }
+        .specs-grid { flex-direction: column; }
+        .nav-links { display: none; } 
+        body { cursor: auto; }
+        #cursor-layer { display: none; }
+      }
+    </style>
+  </head>
+  <body>
+
+    <canvas id="pcb-layer"></canvas>
+
+    <canvas id="cursor-layer"></canvas>
+
+    <header>
+      <div class="container" style="display:flex; width:100%; align-items:center;">
+        <div class="logo">R.ETWAREE</div>
+        <nav class="nav-links">
+          <a href="#projects">PROJECTS</a>
+          <a href="#skills">SKILLS</a>
+          <a href="#leadership">EXP</a>
+          <a href="#contact">CONTACT</a>
+          <a href="./resume.pdf" class="btn-resume" target="_blank">RESUME</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="container">
+          <div class="hero-content">
+            <span class="hero-label">SYSTEM STATUS: ONLINE</span>
+            <h1>RAYHAN ETWAREE</h1>
+            <p>Computer Engineering Student. I bridge the gap between hardware and software with VHDL, FPGA Verification, and Embedded C.</p>
+            <a href="#projects" style="display:inline-block; margin-top:20px; background:var(--white); color:var(--pcb-bg); padding:12px 24px; text-decoration:none; font-weight:bold; font-family:var(--font-screen); border-radius: 2px; cursor:none;">INITIALIZE_VIEW &darr;</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="specs-section">
+        <div class="container">
+          <div class="specs-grid">
+            <div class="spec-item">
+              <span>INSTITUTION</span>
+              <h3>Toronto Metropolitan Univ.</h3>
+              <p>B.Eng. Computer Engineering</p>
+            </div>
+            <div class="spec-item">
+              <span>TIMING</span>
+              <h3>Class of 2028</h3>
+              <p>Expected Graduation</p>
+            </div>
+            <div class="spec-item">
+              <span>FOCUS</span>
+              <h3>Digital Systems</h3>
+              <p>FPGA, Embedded C, RTL</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="projects">
+        <div class="container">
+          <div class="section-header">
+            <span>01</span>
+            <h2>PROJECT_MODULES</h2>
+          </div>
+
+          <div class="project-grid">
+            <article class="chip-card">
+              <div class="chip-header">
+                <div>
+                  <h3 class="project-title">8-Bit Soft Processor</h3>
+                  <span class="project-type">FPGA ARCHITECTURE</span>
+                </div>
+                <svg width="40" height="40" viewBox="0 0 100 100" fill="none" stroke="var(--white)" stroke-width="2">
+                  <rect x="20" y="20" width="60" height="60" rx="2" />
+                  <path d="M20 35 h-10 m0 10 h10 m0 10 h-10 m70 -20 h10 m0 10 h-10 m0 10 h10" />
+                  <rect x="35" y="35" width="30" height="30" stroke-width="1" />
+                </svg>
+              </div>
+              <p class="project-desc">
+                Designed a custom 8-bit CPU on a Cyclone II FPGA. Implemented ALU, Register File, and Microcoded Control Unit. Verified timing and logic via Quartus II simulations.
+              </p>
+              <div class="tech-stack">
+                <span class="tech-badge">VHDL</span>
+                <span class="tech-badge">Altera DE2</span>
+                <span class="tech-badge">RTL Design</span>
+              </div>
+              <div class="chip-footer">
+                <a href="https://github.com/Rayhe2006/FPGA-Based-8-bit-General-Purpose-Processor" target="_blank">SOURCE_CODE &rarr;</a>
+              </div>
+            </article>
+
+            <article class="chip-card">
+              <div class="chip-header">
+                <div>
+                  <h3 class="project-title">Line Follower Robot</h3>
+                  <span class="project-type">EMBEDDED CONTROL</span>
+                </div>
+                <svg width="40" height="40" viewBox="0 0 100 100" fill="none" stroke="var(--white)" stroke-width="2">
+                  <circle cx="50" cy="50" r="25" />
+                  <line x1="50" y1="50" x2="50" y2="20" stroke-dasharray="4,4"/>
+                  <rect x="35" y="10" width="30" height="10" rx="2" />
+                </svg>
+              </div>
+              <p class="project-desc">
+                Autonomous robot firmware written in C for a PIC microcontroller. Uses PID control loops to process IR sensor data and adjust motor PWM for precise navigation.
+              </p>
+              <div class="tech-stack">
+                <span class="tech-badge">C / C++</span>
+                <span class="tech-badge">PIC MCU</span>
+                <span class="tech-badge">Control Theory</span>
+              </div>
+              <div class="chip-footer">
+                <span style="color:#555; font-size:0.8rem;">[HARDWARE_DEMO]</span>
+              </div>
+            </article>
+
+            <article class="chip-card">
+              <div class="chip-header">
+                <div>
+                  <h3 class="project-title">4-Bit Adder/Subtractor</h3>
+                  <span class="project-type">DIGITAL LOGIC</span>
+                </div>
+                <svg width="40" height="40" viewBox="0 0 100 100" fill="none" stroke="var(--white)" stroke-width="2">
+                  <path d="M10 80 h20 v-30 h20 v-30 h20 v30 h20" />
+                  <path d="M10 90 h80" stroke-dasharray="2,2" stroke-opacity="0.5" />
+                </svg>
+              </div>
+              <p class="project-desc">
+                Modular Arithmetic Logic Unit handling signed operations (Two's Complement). Integrated with 7-segment display drivers for real-time hardware output.
+              </p>
+              <div class="tech-stack">
+                <span class="tech-badge">VHDL</span>
+                <span class="tech-badge">ModelSim</span>
+                <span class="tech-badge">Logic Gates</span>
+              </div>
+              <div class="chip-footer">
+                <a href="https://github.com/Rayhe2006/4-Bit-Signed-Adder-Subtractor-Unit-ASU-" target="_blank">SOURCE_CODE &rarr;</a>
+              </div>
+            </article>
+
+            <article class="chip-card">
+              <div class="chip-header">
+                <div>
+                  <h3 class="project-title">Battleship AI</h3>
+                  <span class="project-type">ALGORITHMS</span>
+                </div>
+                <svg width="40" height="40" viewBox="0 0 100 100" fill="none" stroke="var(--white)" stroke-width="2">
+                   <rect x="10" y="10" width="80" height="80" />
+                   <line x1="36" y1="10" x2="36" y2="90" />
+                   <line x1="63" y1="10" x2="63" y2="90" />
+                </svg>
+              </div>
+              <p class="project-desc">
+                Desktop game with an intelligent opponent. The AI uses probability density heuristics to hunt adjacent cells and sink ships efficiently. Built with Java Swing.
+              </p>
+              <div class="tech-stack">
+                <span class="tech-badge">Java</span>
+                <span class="tech-badge">OOP</span>
+                <span class="tech-badge">Swing UI</span>
+              </div>
+              <div class="chip-footer">
+                <a href="https://github.com/Rayhe2006/Battleship" target="_blank">SOURCE_CODE &rarr;</a>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="skills">
+        <div class="container">
+          <div class="section-header">
+            <span>02</span>
+            <h2>COMPONENT_LIBRARY</h2>
+          </div>
+          <div class="skills-container">
+            <div class="skill-col">
+              <h3>LANGUAGES</h3>
+              <ul class="skill-list">
+                <li>VHDL / Verilog</li>
+                <li>C / Embedded C</li>
+                <li>C++</li>
+                <li>Java</li>
+                <li>MATLAB</li>
+              </ul>
+            </div>
+            <div class="skill-col">
+              <h3>HARDWARE</h3>
+              <ul class="skill-list">
+                <li>FPGA (Altera DE2)</li>
+                <li>RTL Verification</li>
+                <li>Oscilloscopes</li>
+                <li>Logic Analyzers</li>
+                <li>Microcontrollers (PIC)</li>
+                <li>Op-Amps / Circuits</li>
+              </ul>
+            </div>
+            <div class="skill-col">
+              <h3>SOFTWARE / TOOLS</h3>
+              <ul class="skill-list">
+                <li>Quartus II</li>
+                <li>MPLAB X IDE</li>
+                <li>ModelSim</li>
+                <li>Multisim</li>
+                <li>Git / GitHub</li>
+                <li>VS Code</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="leadership">
+        <div class="container">
+          <div class="section-header">
+            <span>03</span>
+            <h2>FIELD_OPERATIONS</h2>
+          </div>
+          
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="role-date">SEP 2023 - JUNE 2024</div>
+            <h3 class="role-title">1241 FIRST Robotics Team</h3>
+            <span class="role-meta">Team Member | Mississauga, ON</span>
+            <p style="color:#ccc;">
+              Assisted in the electrical fabrication of a robot that qualified for the FRC World Championship (Top 10 in Ontario). 
+              Mentored students in LEGO Mindstorms workshops, teaching logic and mechanical design.
+            </p>
+          </div>
+
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="role-date">FREELANCE | REMOTE</div>
+            <h3 class="role-title">AI Trainer (Aether Generalist)</h3>
+            <span class="role-meta">Outlier AI</span>
+            <p style="color:#ccc;">
+              Evaluated and optimized AI-generated prompts, applying strong logical analysis to identify errors in model outputs. Performed high-accuracy tasks to refine machine learning datasets.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="contact" style="padding-bottom:100px;">
+        <div class="container">
+          <div class="section-header">
+             <span>04</span>
+             <h2>ESTABLISH_LINK</h2>
+          </div>
+          <div class="contact-box">
+             <p style="font-family:var(--font-screen); color:var(--led-on); margin-bottom:20px;">READY FOR TRANSMISSION</p>
+             <a href="mailto:rayhan.etwaree@gmail.com" style="font-size:2rem; color:var(--white); text-decoration:none; word-break:break-all; cursor:none;">rayhan.etwaree@gmail.com</a>
+             
+             <div class="social-icons">
+               <a href="https://github.com/Rayhe2006" target="_blank" class="social-icon" aria-label="GitHub">
+                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                   <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                 </svg>
+               </a>
+               <a href="https://linkedin.com/in/rayhan-etwaree-a8363a2a3/" target="_blank" class="social-icon" aria-label="LinkedIn">
+                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                   <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+                   <rect x="2" y="9" width="4" height="12"></rect>
+                   <circle cx="4" cy="4" r="2"></circle>
+                 </svg>
+               </a>
+             </div>
+          </div>
+        </div>
+      </section>
+
+      <footer>
+        <div class="container">
+          &copy; 2026 Rayhan Etwaree. End of Line.
+        </div>
+      </footer>
+    </main>
+
+    <script>
+      /**
+       * 1. STATIC PCB BACKGROUND
+       */
+      const pcbCanvas = document.getElementById('pcb-layer');
+      const pCtx = pcbCanvas.getContext('2d');
+      let w, h;
+
+      function resize() {
+        w = pcbCanvas.width = window.innerWidth;
+        h = pcbCanvas.height = window.innerHeight;
+        drawPCB();
+      }
+
+      function drawPCB() {
+        pCtx.clearRect(0, 0, w, h);
+        
+        pCtx.strokeStyle = '#163025';
+        pCtx.lineWidth = 2;
+        pCtx.beginPath();
+        for(let i=0; i<300; i++) {
+          const x = Math.random() * w;
+          const y = Math.random() * h;
+          pCtx.moveTo(x, y);
+          if(Math.random() > 0.5) {
+             pCtx.lineTo(x + 100, y);
+             pCtx.lineTo(x + 150, y + 50);
+          } else {
+             pCtx.lineTo(x, y + 100);
+          }
+        }
+        pCtx.stroke();
+        
+        pCtx.fillStyle = '#1f4a38';
+        for(let i=0; i<500; i++) {
+           pCtx.beginPath();
+           pCtx.arc(Math.random()*w, Math.random()*h, Math.random()*2 + 1, 0, Math.PI*2);
+           pCtx.fill();
+        }
+      }
+
+      window.addEventListener('resize', resize);
+      resize();
+
+      /**
+       * 2. DYNAMIC CAD CROSSHAIR
+       */
+      const cursorCanvas = document.getElementById('cursor-layer');
+      const cCtx = cursorCanvas.getContext('2d');
+      let mx = -100, my = -100;
+
+      function resizeCursor() {
+        cursorCanvas.width = window.innerWidth;
+        cursorCanvas.height = window.innerHeight;
+      }
+      window.addEventListener('resize', resizeCursor);
+      window.addEventListener('mousemove', e => {
+        mx = e.clientX;
+        my = e.clientY;
+      });
+      resizeCursor();
+
+      function drawCursor() {
+        cCtx.clearRect(0, 0, cursorCanvas.width, cursorCanvas.height);
+        
+        cCtx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+        cCtx.lineWidth = 1;
+        cCtx.beginPath();
+        cCtx.moveTo(mx, 0); cCtx.lineTo(mx, cursorCanvas.height);
+        cCtx.moveTo(0, my); cCtx.lineTo(cursorCanvas.width, my);
+        cCtx.stroke();
+        
+        cCtx.strokeStyle = '#fff';
+        cCtx.lineWidth = 1.5;
+        cCtx.beginPath();
+        const size = 10;
+        cCtx.moveTo(mx - size, my); cCtx.lineTo(mx - 2, my);
+        cCtx.moveTo(mx, my - size); cCtx.lineTo(mx, my - 2);
+        cCtx.moveTo(mx + size, my); cCtx.lineTo(mx + 2, my);
+        cCtx.moveTo(mx, my + size); cCtx.lineTo(mx, my + 2);
+        cCtx.stroke();
+        
+        const hexX = Math.floor(mx).toString(16).toUpperCase().padStart(3, '0');
+        const hexY = Math.floor(my).toString(16).toUpperCase().padStart(3, '0');
+        const text = `X:0x${hexX} Y:0x${hexY}`;
+        
+        cCtx.font = '12px \"Share Tech Mono\"';
+        cCtx.fillStyle = '#00ff41';
+        cCtx.fillText(text, mx + 15, my - 15);
+        
+        const gradient = cCtx.createRadialGradient(mx, my, 0, mx, my, 200);
+        gradient.addColorStop(0, 'rgba(255, 255, 255, 0.05)');
+        gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        cCtx.fillStyle = gradient;
+        cCtx.beginPath();
+        cCtx.arc(mx, my, 200, 0, Math.PI*2);
+        cCtx.fill();
+
+        requestAnimationFrame(drawCursor);
+      }
+      drawCursor();
+    </script>
+  </body>
+</html>
