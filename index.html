@@ -109,6 +109,14 @@
         transition: color 0.2s;
       }
       .project-link:hover { color: var(--accent); }
+      
+      .demo-link {
+        color: var(--accent);
+        margin-left: 15px;
+      }
+      .demo-link:hover {
+        color: var(--text-main);
+      }
 
       .skills-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; background: #fff; padding: 50px; border: 1px solid #e2e8f0; }
       .skill-col h3 { font-family: var(--font-screen); font-size: 1rem; color: var(--text-main); margin-bottom: 20px; border-bottom: 2px solid var(--accent); padding-bottom: 8px; }
@@ -168,7 +176,7 @@
             </div>
             
             <div class="profile-frame">
-              <img src="IMG_2066.JPG" alt="Rayhan Etwaree" class="profile-photo">
+              <img src="IMG_2066.jpg" alt="Rayhan Etwaree" class="profile-photo">
             </div>
           </div>
         </div>
@@ -201,6 +209,20 @@
           </div>
 
           <div class="project-grid">
+            <article class="chip-card">
+              <img src="IMG_2542.jpg" alt="Digital Oscilloscope & Waveform Generator" class="card-img">
+              <div class="card-content">
+                <span class="project-type">C++ / ESP32</span>
+                <h3 class="project-title">Digital Oscilloscope & Waveform Generator</h3>
+                <p>Designed and programmed a mixed-signal testing device capable of generating AC waveforms. Leveraged the ESP32’s internal DAC to synthesize a smooth sine wave, using a potentiometer input to map and scale the signal's amplitude.</p>
+                <div class="tech-stack">
+                  <span class="tech-badge">C++</span><span class="tech-badge">ESP32</span><span class="tech-badge">Mixed-Signal</span>
+                </div>
+                <a href="https://github.com/Rayhe2006" target="_blank" class="project-link">VIEW_CODE &rarr;</a>
+                <a href="https://youtu.be/TDUsZWTDENc" target="_blank" class="project-link demo-link">WATCH_DEMO &rarr;</a>
+              </div>
+            </article>
+
             <article class="chip-card">
               <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80" alt="FPGA Processor" class="card-img">
               <div class="card-content">
@@ -250,7 +272,7 @@
               <h3>HARDWARE</h3>
               <ul class="skill-list">
                 <li>FPGA Altera DE2 board </li>
-                <li>PIC Microcontroller </li>
+                <li>ESP32 & PIC MCU</li>
                 <li>Oscilloscope & Multimeter </li>
               </ul>
             </div>
